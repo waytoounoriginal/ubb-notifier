@@ -1,14 +1,15 @@
 import requests
 import uuid
 from article import Article
+import os
 
 
 class Notifier:
-    _TOPIC = "notificari-ubb"
+    _TOPIC = os.environ.get("NOTIFIER_TAG_NAME")
 
     def notify(self, article: Article):
         Notifier._send_push_notification(article)
-        
+
 
     @staticmethod
     def _send_push_notification(article: Article):
