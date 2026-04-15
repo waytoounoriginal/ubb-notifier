@@ -1,0 +1,11 @@
+name: Fetch UBB News
+on:
+  schedule:
+    - cron: *****
+jobs:
+  fetch-news:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Start the python script
+      run: python ./main.py
