@@ -31,7 +31,7 @@ class Repository:
             self._id_set.add(id_)
 
 
-    def add_all(self, articles: list[Article]):
+    def add_all(self, articles: list[Article]) -> list[Article]:
         successful_adds = []
 
         for article in articles:
@@ -40,7 +40,7 @@ class Repository:
 
             self._article_list.append(article)
             self._id_set.add(article.id_)
-            successful_adds.append(article.id_)
+            successful_adds.append(article)
 
         with open(self._DATABASE_PATH, "w") as f:
             f.write(self._DELIM.join(id_ for id_ in self._id_set))
