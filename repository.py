@@ -20,9 +20,12 @@ class Repository:
         successful_adds = []
 
         seen_articles_ids = self._redis.smembers(self._SEEN_IDS_KEY)
+
         for article in articles[:Repository._ARTICLE_LIMIT]:
             if article.id_ in seen_articles_ids:
                 continue
+
+            successful_adds.append(article)
 
             self._redis.sadd(self._SEEN_IDS_KEY, article.id_)
 

@@ -3,11 +3,13 @@ from repository import Repository
 from notifier import Notifier
 from time import sleep
 
+# Globals so that they can be reused by lambdas
+repo: Repository = Repository()
+scraper: Scraper = Scraper()
+notifier: Notifier = Notifier()
 
-if __name__ == "__main__":
-    repo: Repository = Repository()
-    scraper: Scraper = Scraper()
-    notifier: Notifier = Notifier()
+def lambda_handler(event, context):
+    global repo, scraper, notifier
 
     print("CURR TOPIC ID:", notifier._TOPIC)
 
@@ -23,3 +25,8 @@ if __name__ == "__main__":
         notifier.notify(article)
 
     print("Notifications sent")
+
+    return {
+        'statusCode': 200,
+        'body': f'UBB has been scrapped!'
+    }
