@@ -1,0 +1,26 @@
+name: Cleanup Database
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup-db:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Delete database file
+        run: rm -f id_db.db
+
+      - name: Commit database deletion
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add id_db.db
+          git diff --cached --quiet || git commit -m "chore: clean up database [skip ci]"
+          git push
