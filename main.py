@@ -15,11 +15,11 @@ if __name__ == "__main__":
 
     curr_articles = scraper.scrape()
 
-    successful_adds = repo.add_all(curr_articles)
+    new_articles = repo.add_all(curr_articles)
 
     print("Sending notifications...")
 
-    for article in curr_articles:
+    for article in new_articles:
         notifier.notify(article)
 
     print("Notifications sent")
