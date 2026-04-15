@@ -8,4 +8,4 @@ jobs:
 
     steps:
       - name: Start the python script
-      run: python ./main.py
+      run: python ../main.py
