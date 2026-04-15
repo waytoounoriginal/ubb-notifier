@@ -19,10 +19,12 @@ class Repository:
     def add_all(self, articles: list[Article]) -> list[Article]:
         successful_adds = []
 
+        seen_articles_ids = self._redis.smembers(self._SEEN_IDS_KEY)
         for article in articles[:Repository._ARTICLE_LIMIT]:
-            was_added = self._redis.sadd(self._SEEN_IDS_KEY, article.id_)
-            if was_added == 1:
-                successful_adds.append(article)
+            if article.id_ in seen_articles_ids:
+                continue
+
+            self._redis.sadd(self._SEEN_IDS_KEY, article.id_)
 
         return successful_adds
     
