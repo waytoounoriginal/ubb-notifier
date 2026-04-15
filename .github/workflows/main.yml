@@ -24,6 +24,8 @@ jobs:
         run: pip install requests beautifulsoup4
 
       - name: Start the python script
+        env:
+          NOTIFIER_TAG_NAME: ${{ secrets.NOTIFIER_TAG_NAME }}
         run: python main.py
 
       - name: Persist seen article IDs
