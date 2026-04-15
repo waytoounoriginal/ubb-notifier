@@ -1,8 +1,7 @@
 name: Fetch UBB News
 
 on:
-  schedule:
-    - cron: '* * * * *'  # Runs every minute
+  # deleted cron jobs as AWS lambda will take care
   workflow_dispatch:
 
 permissions:
