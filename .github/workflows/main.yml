@@ -4,9 +4,6 @@ on:
   # deleted cron jobs as AWS lambda will take care
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
   fetch-news:
     runs-on: ubuntu-latest
@@ -21,17 +18,10 @@ jobs:
           python-version: '3.x'
 
       - name: Install dependencies
-        run: pip install requests beautifulsoup4
+        run: pip install requests beautifulsoup4 redis
 
       - name: Start the python script
         env:
           NOTIFIER_TAG_NAME: ${{ secrets.NOTIFIER_TAG_NAME }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
         run: python main.py
-
-      - name: Persist seen article IDs
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add id_db.db
-          git diff --cached --quiet || git commit -m "chore: update seen article IDs [skip ci]"
-          git push

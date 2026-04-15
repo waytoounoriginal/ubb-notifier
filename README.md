@@ -2,6 +2,8 @@
 
 Monitors <https://www.cs.ubbcluj.ro/> for new articles and sends push notifications via [ntfy.sh](https://ntfy.sh) when new content is found.
 
+Seen article IDs are persisted in Redis, so the repository no longer needs to commit a state file after each run.
+
 ## Architecture
 
 ```
@@ -19,17 +21,14 @@ GitHub Actions (workflow_dispatch)
    │    │             │              │      │
    │  Fetches     Tracks seen    Sends push │
    │  UBB CS      article IDs   notification│
-   │  page        in id_db.db   via ntfy.sh │
+   │  page        in Redis      via ntfy.sh │
    └────────────────────────────────────────┘
-        │
-        ▼
-   Persist id_db.db back to repo (git commit)
 ```
 
 1. **AWS Lambda** – Runs on a schedule and triggers the GitHub Actions workflow via a POST request to the GitHub API (`workflow_dispatch` event).
-2. **GitHub Actions** (`main.yml`) – Checks out the repo, installs dependencies, and runs `main.py`. After the script finishes, it commits any changes to `id_db.db` back to the repository.
+2. **GitHub Actions** (`main.yml`) – Checks out the repo, installs dependencies, and runs `main.py` with `NOTIFIER_TAG_NAME` and `REDIS_URL` secrets.
 3. **Scraper** (`scraper.py`) – Fetches the UBB CS homepage and parses article cards (`div[id^="post-"]`), extracting title, overview, and URL.
-4. **Repository** (`repository.py`) – Reads and writes `id_db.db`, a flat file that tracks already-seen article IDs to prevent duplicate notifications.
+4. **Repository** (`repository.py`) – Uses a Redis set (`ubb_notifier:seen_article_ids`) to track already-seen article IDs and prevent duplicate notifications.
 5. **Notifier** (`notifier.py`) – Sends a push notification for each new article using the [ntfy.sh](https://ntfy.sh) HTTP API. The topic name is supplied via the `NOTIFIER_TAG_NAME` secret.
 
 ## Scraper details
@@ -47,8 +46,14 @@ GitHub Actions (workflow_dispatch)
 
 | Workflow | Trigger | Purpose |
 |---|---|---|
-| `main.yml` | `workflow_dispatch` (invoked by AWS Lambda) | Scrape, notify, persist seen IDs |
-| `cleanup-db.yml` | `workflow_dispatch` (manual) | Delete `id_db.db` to reset seen-article history |
+| `main.yml` | `workflow_dispatch` (invoked by AWS Lambda) | Scrape, notify, and update seen IDs in Redis |
+| `cleanup-db.yml` | `workflow_dispatch` (manual) | Clear Redis seen-article IDs key |
+
+## Secrets
+
+Required GitHub Actions secrets:
+- `NOTIFIER_TAG_NAME` – ntfy topic used for notifications.
+- `REDIS_URL` – Redis connection URL, for example `redis://:<password>@<host>:6379/0`.
 
 ## Benchmark Tests
 Run the benchmark-focused tests with:

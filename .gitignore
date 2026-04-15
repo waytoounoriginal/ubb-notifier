@@ -1,4 +1,3 @@
 __pycache__
 venv
 *.db
-!id_db.db
